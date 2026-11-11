@@ -1,0 +1,160 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#123b35">
+<title>Construction Accounts</title>
+<style>
+:root{--green:#123b35;--mint:#e8f2ee;--bg:#f4f7f6;--ink:#182522;--muted:#687772;--line:#dce5e1;--white:#fff;--red:#b42318}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:15px system-ui,-apple-system,Segoe UI,sans-serif}
+header{background:var(--green);color:white;padding:18px 16px 15px;position:sticky;top:0;z-index:5}
+header h1{font-size:21px;margin:0}header p{margin:4px 0 0;color:#d5e6df;font-size:12px}
+main{max-width:850px;margin:auto;padding:14px 13px 90px}
+nav{display:flex;gap:7px;overflow:auto;padding:10px 12px;background:#fff;border-bottom:1px solid var(--line);position:sticky;top:75px;z-index:4}
+nav button{white-space:nowrap;border:1px solid var(--line);background:white;border-radius:20px;padding:9px 13px;color:var(--green);font-weight:600}
+nav button.active{background:var(--green);color:white;border-color:var(--green)}
+.card{background:white;border:1px solid var(--line);border-radius:14px;padding:15px;margin:12px 0;box-shadow:0 2px 8px #163b3510}
+h2{font-size:18px;margin:2px 0 12px}.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.stat{background:var(--mint);border-radius:12px;padding:13px}.stat small{color:var(--muted);display:block}.stat strong{font-size:20px;display:block;margin-top:4px;overflow-wrap:anywhere}
+label{display:block;font-size:13px;color:var(--muted);margin:10px 0 5px}
+input,select,textarea{width:100%;border:1px solid #cbd8d2;border-radius:9px;padding:11px;font:inherit;background:white;color:var(--ink)}
+textarea{min-height:70px;resize:vertical}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+button.primary{background:var(--green);color:white;border:0;border-radius:10px;padding:12px 16px;font-weight:700;margin-top:13px;width:100%}
+button.secondary{background:var(--mint);color:var(--green);border:1px solid #c7dcd2;border-radius:9px;padding:9px 12px;font-weight:600}
+button.danger{color:var(--red);background:#fff;border:1px solid #f1c5c1;border-radius:8px;padding:7px 10px}
+.item{border-top:1px solid var(--line);padding:12px 0;display:flex;justify-content:space-between;gap:12px}
+.item:first-child{border-top:0}.item strong{display:block}.muted{color:var(--muted);font-size:12px}.amount{font-weight:800;white-space:nowrap}.income{color:#167647}.expense{color:var(--red)}
+.hidden{display:none!important}.empty{color:var(--muted);text-align:center;padding:22px 8px}
+.actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+footer{font-size:11px;color:var(--muted);text-align:center;padding:18px}
+@media(max-width:430px){.grid{grid-template-columns:1fr 1fr}.stat strong{font-size:17px}.row{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<header><h1>Construction Accounts</h1><p>કન્સ્ટ્રક્શન હિસાબ • Offline personal account book</p></header>
+<nav>
+<button class="active" data-tab="dashboard">Dashboard</button>
+<button data-tab="entry">Add Entry</button>
+<button data-tab="projects">Projects</button>
+<button data-tab="reports">Reports</button>
+<button data-tab="backup">Backup</button>
+</nav>
+<main>
+<section id="dashboard">
+<div class="card"><h2>Overall Summary / કુલ હિસાબ</h2><div class="grid">
+<div class="stat"><small>Total Income / કુલ આવક</small><strong id="totalIncome">₹0</strong></div>
+<div class="stat"><small>Total Expense / કુલ ખર્ચ</small><strong id="totalExpense">₹0</strong></div>
+<div class="stat"><small>Balance / બાકી બેલેન્સ</small><strong id="balance">₹0</strong></div>
+<div class="stat"><small>Projects / પ્રોજેક્ટ</small><strong id="projectCount">0</strong></div>
+</div></div>
+<div class="card"><h2>Recent Entries / તાજેતરની એન્ટ્રી</h2><div id="recentList"></div></div>
+</section>
+
+<section id="entry" class="hidden">
+<div class="card"><h2>Add Income / Expense</h2>
+<label>Project / પ્રોજેક્ટ</label><select id="entryProject"></select>
+<div class="row"><div><label>Entry Type / પ્રકાર</label><select id="entryType"><option value="expense">Expense / ખર્ચ</option><option value="income">Income / આવક</option></select></div>
+<div><label>Date / તારીખ</label><input id="entryDate" type="date"></div></div>
+<label>Category / કેટેગરી</label><select id="category">
+<option>Material Purchase</option><option>Labour Payment</option><option>Contractor Payment</option><option>Transport</option><option>Machinery</option><option>Food & Site Expenses</option><option>Client Payment</option><option>Other</option>
+</select>
+<div id="otherCategoryWrap" class="hidden">
+<label>Other Category Name / અન્ય કેટેગરીનું નામ</label>
+<input id="otherCategory" type="text" placeholder="તમારી કેટેગરી લખો">
+</div>
+<div class="row"><div><label>Amount / રકમ (₹)</label><input id="amount" type="number" min="0.01" step="0.01" placeholder="0.00"></div>
+<div><label>Paid to / Received from</label><input id="party" placeholder="Name"></div></div>
+<label>Description / વિગત</label><textarea id="description" placeholder="કયા કામ માટે ખર્ચ/આવક?"></textarea>
+<label>Bill / Receipt Photo (optional)</label><input id="receipt" type="file" accept="image/*" capture="environment">
+<div class="muted">Photo entry સાથે આ ફોનમાં જ સેવ થશે. મોટા ફોટા લીધે storage ઝડપથી ભરાઈ શકે છે.</div>
+<button class="primary" id="saveEntry">Save Entry / સેવ કરો</button>
+</div>
+</section>
+
+<section id="projects" class="hidden">
+<div class="card"><h2>Add Project / નવો પ્રોજેક્ટ</h2>
+<label>Project Name / નામ</label><input id="projectName" placeholder="e.g. Residential Building">
+<label>Client / Department (optional)</label><input id="projectClient" placeholder="Client name">
+<label>Location (optional)</label><input id="projectLocation" placeholder="Site location">
+<button class="primary" id="saveProject">Add Project</button>
+</div>
+<div class="card"><h2>Project List / પ્રોજેક્ટ યાદી</h2><div id="projectList"></div></div>
+</section>
+
+<section id="reports" class="hidden">
+<div class="card"><h2>Project-wise Report / પ્રોજેક્ટ રિપોર્ટ</h2>
+<label>Select Project</label><select id="reportProject"></select>
+<div class="grid">
+<div class="stat"><small>Income</small><strong id="rIncome">₹0</strong></div>
+<div class="stat"><small>Expense</small><strong id="rExpense">₹0</strong></div>
+<div class="stat"><small>Profit / Loss</small><strong id="rProfit">₹0</strong></div>
+<div class="stat"><small>Entries</small><strong id="rCount">0</strong></div>
+</div><div id="reportList"></div>
+</div>
+</section>
+
+<section id="backup" class="hidden">
+<div class="card"><h2>Backup & Restore / ડેટા સુરક્ષા</h2>
+<p class="muted">તમારો હિસાબ આ જ મોબાઇલના બ્રાઉઝરમાં સેવ થાય છે. ફોન બદલતા અથવા બ્રાઉઝર ડેટા સાફ કરતા પહેલાં backup export કરો.</p>
+<div class="actions"><button class="secondary" id="exportBackup">Download Full Backup (JSON)</button><button class="secondary" id="exportCsv">Export Entries (CSV)</button></div>
+<label>Restore Backup JSON</label><input type="file" id="restoreFile" accept="application/json">
+<button class="primary" id="restoreBackup">Restore Backup</button>
+<p class="muted">Restore કરવાથી હાલનો ડેટા backup ના ડેટાથી બદલાઈ જશે.</p>
+</div>
+</section>
+<footer>Construction Accounts • GST not included • Single combined account (Cash/Bank not separated)</footer>
+</main>
+<script>
+const DBKEY='constructionAccounts_v1';
+let db={projects:[],entries:[]};
+const $=id=>document.getElementById(id);
+const money=n=>'₹'+Number(n||0).toLocaleString('en-IN',{maximumFractionDigits:2});
+function load(){try{const x=JSON.parse(localStorage.getItem(DBKEY));if(x&&Array.isArray(x.projects)&&Array.isArray(x.entries))db=x}catch(e){}}
+function persist(){localStorage.setItem(DBKEY,JSON.stringify(db));render()}
+function safe(s){return String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+function projectName(id){return db.projects.find(p=>p.id===id)?.name||'Unknown project'}
+function fillSelects(){
+ const opts=db.projects.map(p=>`<option value="${p.id}">${safe(p.name)}</option>`).join('');
+ $('entryProject').innerHTML=opts||'<option value="">Add a project first</option>';
+ $('reportProject').innerHTML=opts||'<option value="">No projects</option>';
+}
+function entryHtml(e,showProject=false){return `<div class="item"><div><strong>${safe(e.category)} ${e.photo?'📎':''}</strong><div class="muted">${safe(e.date)} • ${showProject?safe(projectName(e.projectId))+' • ':''}${safe(e.party||'')} ${e.description?'• '+safe(e.description):''}</div>${e.photo?`<button class="secondary" onclick="viewPhoto('${e.id}')">View receipt</button>`:''}</div><div class="amount ${e.type}">${e.type==='income'?'+':'−'}${money(e.amount)}<div><button class="danger" onclick="deleteEntry('${e.id}')">Delete</button></div></div></div>`}
+function render(){
+ fillSelects();
+ const income=db.entries.filter(e=>e.type==='income').reduce((s,e)=>s+Number(e.amount),0);
+ const expense=db.entries.filter(e=>e.type==='expense').reduce((s,e)=>s+Number(e.amount),0);
+ $('totalIncome').textContent=money(income);$('totalExpense').textContent=money(expense);$('balance').textContent=money(income-expense);$('projectCount').textContent=db.projects.length;
+ const recent=[...db.entries].sort((a,b)=>(b.date||'').localeCompare(a.date||'')).slice(0,8);
+ $('recentList').innerHTML=recent.length?recent.map(e=>entryHtml(e,true)).join(''):'<div class="empty">No entries yet / હજી કોઈ એન્ટ્રી નથી</div>';
+ $('projectList').innerHTML=db.projects.length?db.projects.map(p=>{const es=db.entries.filter(e=>e.projectId===p.id);const inc=es.filter(e=>e.type==='income').reduce((s,e)=>s+ +e.amount,0);const exp=es.filter(e=>e.type==='expense').reduce((s,e)=>s+ +e.amount,0);return `<div class="item"><div><strong>${safe(p.name)}</strong><div class="muted">${safe(p.client||'')}${p.location?' • '+safe(p.location):''}</div><div class="muted">Income ${money(inc)} • Expense ${money(exp)}</div></div><div><button class="danger" onclick="deleteProject('${p.id}')">Delete</button></div></div>`}).join(''):'<div class="empty">Add your first project</div>';
+ report();
+}
+function report(){
+ const id=$('reportProject').value;const es=db.entries.filter(e=>e.projectId===id);
+ const inc=es.filter(e=>e.type==='income').reduce((s,e)=>s+ +e.amount,0),exp=es.filter(e=>e.type==='expense').reduce((s,e)=>s+ +e.amount,0);
+ $('rIncome').textContent=money(inc);$('rExpense').textContent=money(exp);$('rProfit').textContent=money(inc-exp);$('rCount').textContent=es.length;
+ $('reportList').innerHTML=es.length?[...es].sort((a,b)=>b.date.localeCompare(a.date)).map(e=>entryHtml(e)).join(''):'<div class="empty">No entries for this project</div>';
+}
+function deleteEntry(id){if(confirm('Delete this entry?')){db.entries=db.entries.filter(e=>e.id!==id);persist()}}
+function deleteProject(id){if(db.entries.some(e=>e.projectId===id)){alert('આ પ્રોજેક્ટમાં એન્ટ્રી છે. પહેલા એન્ટ્રીઓ delete કરો.');return}if(confirm('Delete project?')){db.projects=db.projects.filter(p=>p.id!==id);persist()}}
+function viewPhoto(id){const e=db.entries.find(x=>x.id===id);if(!e?.photo)return;const w=window.open();if(w)w.document.write(`<img src="${e.photo}" style="max-width:100%">`)}
+document.querySelectorAll('nav button').forEach(b=>b.addEventListener('click',()=>{document.querySelectorAll('nav button').forEach(x=>x.classList.remove('active'));b.classList.add('active');document.querySelectorAll('main section').forEach(s=>s.classList.add('hidden'));$(b.dataset.tab).classList.remove('hidden');if(b.dataset.tab==='reports')report()}));
+$('saveProject').onclick=()=>{const name=$('projectName').value.trim();if(!name){alert('Project name required');return}db.projects.push({id:crypto.randomUUID(),name,client:$('projectClient').value.trim(),location:$('projectLocation').value.trim()});$('projectName').value=$('projectClient').value=$('projectLocation').value='';persist()};
+$('category').addEventListener('change',()=>{const isOther=$('category').value==='Other';$('otherCategoryWrap').classList.toggle('hidden',!isOther);if(!isOther)$('otherCategory').value=''});
+$('saveEntry').onclick=async()=>{const projectId=$('entryProject').value,amount=Number($('amount').value);if(!projectId){alert('પહેલા Project બનાવો');return}if(!(amount>0)){alert('Valid amount દાખલ કરો');return}
+const chosenCategory=$('category').value==='Other'?$('otherCategory').value.trim():$('category').value;
+if(!chosenCategory){alert('Other category name લખો');return}
+let photo='';const file=$('receipt').files[0];if(file){if(file.size>3*1024*1024){alert('કૃપા કરીને 3 MB કરતાં નાનો ફોટો પસંદ કરો');return}photo=await new Promise((res,rej)=>{const r=new FileReader();r.onload=()=>res(r.result);r.onerror=rej;r.readAsDataURL(file)})}
+db.entries.push({id:crypto.randomUUID(),projectId,type:$('entryType').value,date:$('entryDate').value||new Date().toISOString().slice(0,10),category:chosenCategory,amount,party:$('party').value.trim(),description:$('description').value.trim(),photo});
+$('amount').value=$('party').value=$('description').value=$('receipt').value=$('otherCategory').value='';$('category').value='Material Purchase';$('otherCategoryWrap').classList.add('hidden');persist();alert('Entry saved / એન્ટ્રી સેવ થઈ')};
+$('reportProject').onchange=report;
+$('exportBackup').onclick=()=>download('construction-accounts-backup.json',JSON.stringify(db,null,2),'application/json');
+$('exportCsv').onclick=()=>{const rows=[['Date','Project','Type','Category','Amount','Party','Description'],...db.entries.map(e=>[e.date,projectName(e.projectId),e.type,e.category,e.amount,e.party,e.description])];const csv=rows.map(r=>r.map(v=>'"'+String(v??'').replace(/"/g,'""')+'"').join(',')).join('\n');download('construction-accounts-entries.csv','\ufeff'+csv,'text/csv')};
+function download(name,data,type){const a=document.createElement('a'),u=URL.createObjectURL(new Blob([data],{type}));a.href=u;a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(u),1000)}
+$('restoreBackup').onclick=()=>{const f=$('restoreFile').files[0];if(!f){alert('Select a backup JSON file');return}const r=new FileReader();r.onload=()=>{try{const x=JSON.parse(r.result);if(!Array.isArray(x.projects)||!Array.isArray(x.entries))throw Error();if(confirm('Replace current data with this backup?')){db=x;persist();alert('Backup restored')}}catch(e){alert('Invalid backup file')}};r.readAsText(f)};
+$('entryDate').value=new Date().toISOString().slice(0,10);
+load();render();
+</script>
+</body></html>

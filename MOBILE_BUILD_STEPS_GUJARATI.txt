@@ -1,0 +1,18 @@
+માત્ર Android Mobile થી APK બનાવવાનો વિકલ્પ (Cloud Build)
+
+આ ZIP માં GitHub Actions workflow ઉમેરેલું છે, જે GitHub ના cloud computer પર APK build કરી શકે છે. APK આ ZIP માં પહેલેથી બનેલી નથી.
+
+મોબાઇલ પર સામાન્ય પગલાં:
+1. GitHub account બનાવો અથવા login કરો.
+2. Browser માં GitHub પર નવું Public અથવા Private repository બનાવો.
+3. Project files repository માં upload કરો (ZIP ફાઇલને સીધી repository તરીકે upload ન કરવી; ZIP extract કર્યા પછીની files upload કરવી).
+4. Files માં .github/workflows/android-apk.yml હાજર હોવું જોઈએ.
+5. Repository ના Actions tab માં "Build Android APK" workflow ખોલો અને Run workflow દબાવો (અથવા main branch પર push થયા પછી build શરૂ થશે).
+6. Build સફળ થાય પછી workflow run માં Artifacts વિભાગમાંથી Construction-Accounts-debug-apk download કરો.
+7. ZIP artifact extract કરીને app-debug.apk ખોલો અને Android ના install prompt પ્રમાણે install કરો.
+
+નોંધ:
+- GitHub mobile browser માં અનેક files/folders upload કરવું મુશ્કેલ હોઈ શકે છે. Desktop mode અજમાવો.
+- Android Studio/PC જરૂરી નથી, કારણ કે build GitHub cloud runner પર થાય છે.
+- આ workflow હજી અહીં ચલાવીને APK verify કરેલી નથી. Build error આવે તો error screenshot મોકલો.
+- APK install કરતા પહેલાં backup રાખો. અજાણી જગ્યાથી મળેલી APK install ન કરો.
