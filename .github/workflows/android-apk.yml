@@ -5,7 +5,8 @@ on:
   push:
     paths:
       - 'index.html'
-      - '.github/workflows/android-apk.yml'
+      - 'app-icon.png'
+      - '.github/workflows/Android-apk.yml'
 
 jobs:
   build:
@@ -28,11 +29,12 @@ jobs:
 
       - name: Prepare App
         run: |
-          mkdir -p www
+          mkdir -p www resources
           cp index.html www/index.html
+          cp app-icon.png resources/icon.png
           npm init -y
           npm install @capacitor/core@7 @capacitor/android@7
-          npm install -D @capacitor/cli@7
+          npm install -D @capacitor/cli@7 @capacitor/assets
 
       - name: Configure Capacitor
         run: |
@@ -47,6 +49,7 @@ jobs:
       - name: Build Android
         run: |
           npx cap add android
+          npx capacitor-assets generate --android
           npx cap sync android
           cd android
           chmod +x gradlew
